@@ -1,6 +1,8 @@
 from dandhacontrol.models import Recharge
 from dandhacontrol.serializers import RechargeSerializer
 from rest_framework import generics
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from dandhacontrol.appviews import CustomObjectPermission
 
 
@@ -14,13 +16,18 @@ class RechargeListCreateView(generics.ListCreateAPIView):
 
         # Filter by recharge date
         recharge_date = self.request.query_params.get('recharge_date', None)
+
         if recharge_date is not None:
-            queryset = queryset.filter(device__recharge_date=recharge_date)
+            date_obj = datetime.strptime(recharge_date, "%Y-%m-%d")
+
+            new_date_obj = date_obj - relativedelta(months=1) + timedelta(days=1)
+            new_date_str = new_date_obj.strftime("%Y-%m-%d")
+            queryset = queryset.filter(device__recharge_date=new_date_str)
 
         # Filter by locality
-        locality = self.request.query_params.get('locality', None)
-        if locality is not None:
-            queryset = queryset.filter(device__locality__area=locality)
+        locality_id = self.request.query_params.get('locality_id', None)
+        if locality_id is not None:
+            queryset = queryset.filter(device__locality=locality_id)
 
         return queryset
 

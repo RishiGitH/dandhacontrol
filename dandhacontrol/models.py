@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 import uuid
 # Create your models here.
 
@@ -144,6 +145,7 @@ class Device(models.Model):
 
     class Meta:
         db_table = 'device'
+
 class Recharge(models.Model):
     
     YES = 1
@@ -159,7 +161,7 @@ class Recharge(models.Model):
     payment_collected = models.PositiveSmallIntegerField(choices=STATUS)
     payment_amount = models.IntegerField(blank=True, null=True)
     payment_date = models.DateField()
-    recharge_entry = models.DateField()
+    recharge_entry = models.DateField(default=timezone.now)
     payment_mode = models.ForeignKey(PaymentMode, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

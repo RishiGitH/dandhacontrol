@@ -42,19 +42,19 @@ class LocalitySerializer(serializers.ModelSerializer):
 
 
 class PackageSerializer(serializers.ModelSerializer):
-    company_name = serializers.CharField(write_only=True)
-    service_name = serializers.CharField(write_only=True)
+    company_id = serializers.CharField(write_only=True)
+    service_id = serializers.CharField(write_only=True)
 
     class Meta:
         model = Package
-        fields = ('id', 'name', 'price_monthly', 'company_name', 'service_name', 'created_at', 'updated_at')
+        fields = ('id', 'name', 'price_monthly', 'company_id', 'service_id', 'created_at', 'updated_at')
 
     def create(self, validated_data):
-        company_name = validated_data.pop('company_name')
-        service_name = validated_data.pop('service_name')
+        company_id = validated_data.pop('company_id')
+        service_id = validated_data.pop('service_id')
 
-        company = Company.objects.get(company_name=company_name)
-        service = Service.objects.get(name=service_name)
+        company = Company.objects.get(id=company_id)
+        service = Service.objects.get(id=service_id)
 
         company_service_info = CompanyServiceRelationship.\
             objects.filter(company_info=company, service_info=service).first()
@@ -97,6 +97,8 @@ class RechargeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recharge
         fields = '__all__'
+
+
 
 class PaymentModeSerializer(serializers.ModelSerializer):
     class Meta:
