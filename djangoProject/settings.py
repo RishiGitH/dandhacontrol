@@ -61,8 +61,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    "dandhacontrol.middleware.CustomMiddleware"
-
+    "dandhacontrol.middleware.CustomMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 HEALTH_CHECK = {
@@ -94,7 +94,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
-CACHEOPS_REDIS = 'redis://airwals.com:6379/2'
+CACHEOPS_REDIS = 'redis://airwalkerredis.10fjgo.ng.0001.aps1.cache.amazonaws.com:6379'
 
 
 CACHEOPS = {
@@ -133,8 +133,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'defaultdb',
         'USER': 'doadmin',
-        'PASSWORD': 'AVNuPg',
-        'HOST': 'dhandacontrol-prndigitalocean.com',
+        'PASSWORD': 'AVN9wvuPg',
+        'HOST': 'dhandacontrol-prod-do-user-7832252-0.b.db.ondigitalocean.com',
         'PORT': '25060',
         'OPTIONS': {'sslmode': 'require'},
 
@@ -178,8 +178,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
