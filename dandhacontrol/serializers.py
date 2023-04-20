@@ -29,10 +29,10 @@ class CompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = '__all__'
 
-    def get_fields(self):
-        fields = super().get_fields()
-        fields['package_count'] = self.package_count
-        return fields
+    def get_field_names(self, declared_fields, info):
+        field_names = super().get_field_names(declared_fields, info)
+        field_names.extend(['package_count'])
+        return field_names
 
     def create(self, validated_data):
         service_ids = validated_data.pop('company_service')
@@ -68,12 +68,10 @@ class LocalitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Locality
         fields = '__all__'
-    def get_fields(self):
-        fields = super().get_fields()
-        fields['device_count'] = self.device_count
-        fields['customer_count'] = self.customer_count
-        return fields
-
+    def get_field_names(self, declared_fields, info):
+        field_names = super().get_field_names(declared_fields, info)
+        field_names.extend(['device_count', 'customer_count'])
+        return field_names
 
 class PackageSerializer(serializers.ModelSerializer):
     company_id = serializers.CharField(write_only=True)
