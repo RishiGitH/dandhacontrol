@@ -23,10 +23,16 @@ class CompanyServiceRelationshipSerializer(serializers.ModelSerializer):
 
 class CompanySerializer(serializers.ModelSerializer):
     company_service = ServiceSerializer(many=True, read_only=True)
+    package_count = serializers.ReadOnlyField()
 
     class Meta:
         model = Company
         fields = '__all__'
+
+    def get_fields(self):
+        fields = super().get_fields()
+        fields['package_count'] = self.package_count
+        return fields
 
     def create(self, validated_data):
         service_ids = validated_data.pop('company_service')
@@ -57,10 +63,16 @@ class CompanyServiceRelationshipSerializer(serializers.ModelSerializer):
 
 
 class LocalitySerializer(serializers.ModelSerializer):
+    device_count = serializers.ReadOnlyField()
+    customer_count = serializers.ReadOnlyField()
     class Meta:
         model = Locality
         fields = '__all__'
-
+    def get_fields(self):
+        fields = super().get_fields()
+        fields['device_count'] = self.device_count
+        fields['customer_count'] = self.customer_count
+        return fields
 
 
 class PackageSerializer(serializers.ModelSerializer):
