@@ -65,7 +65,7 @@ class Company(models.Model):
     @cached_property
     def package_count(self):
         return self.company_service.annotate\
-            (package_count=Count('packages')).\
+            (package_count=Count('companyservicerelationship__package')).\
             aggregate(total=Sum('package_count'))['total'] or 0
 class CompanyServiceRelationship(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
