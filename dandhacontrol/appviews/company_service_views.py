@@ -1,5 +1,5 @@
 from dandhacontrol.models import CompanyServiceRelationship
-from dandhacontrol.serializers import CompanySerializer, CompanyServiceRelationshipSerializer
+from dandhacontrol.serializers import CompanySerializer, CompanyServiceRelationshipSerializer, CompanyServiceRelationshipListSerializer
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
@@ -11,7 +11,7 @@ from rest_framework import generics
 
 class CompanyServiceRelationshipList(generics.ListAPIView):
     queryset = CompanyServiceRelationship.objects.all()
-    serializer_class = CompanyServiceRelationshipSerializer
+    serializer_class = CompanyServiceRelationshipListSerializer
 
     # permission_classes = [IsAdminCompany]
 

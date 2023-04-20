@@ -42,6 +42,14 @@ class CompanySerializer(serializers.ModelSerializer):
 
         return company_instance
 
+
+class CompanyServiceRelationshipListSerializer(serializers.ModelSerializer):
+    company_info = BasicCompanySerializer(read_only=True)
+    service_info = ServiceSerializer(read_only=True)
+    class Meta:
+        model = CompanyServiceRelationship
+        fields = '__all__'
+
 class CompanyServiceRelationshipSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyServiceRelationship
