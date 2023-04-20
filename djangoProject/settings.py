@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)s-b=zob^vn1$yu-*yuryqgb+u+9=yccbe1181zm@+6_k42%og'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'health_check.contrib.migrations',
     "debug_toolbar",
     'cache_fallback',
+    "phonenumber_field"
 ]
 
 MIDDLEWARE = [
@@ -94,7 +95,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
     # ...
 ]
-CACHEOPS_REDIS = 'redis://airwalkerredis.10fjgo.ng.0001.aps1.cache.amazonaws.com:6379'
+CACHEOPS_REDIS = 'redis://localhost:6379'
 
 
 CACHEOPS = {
@@ -133,7 +134,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'defaultdb',
         'USER': 'doadmin',
-        'PASSWORD': 'AVN9wvuPg',
+        'PASSWORD': 'AVNS_wz4ZZLKls_aDP9wvuPg',
         'HOST': 'dhandacontrol-prod-do-user-7832252-0.b.db.ondigitalocean.com',
         'PORT': '25060',
         'OPTIONS': {'sslmode': 'require'},

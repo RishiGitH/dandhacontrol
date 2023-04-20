@@ -3,8 +3,26 @@ from .models import Company, CompanyServiceRelationship,\
     Service,Locality,Customer,\
     Package,Device,Recharge,PaymentMode,Client
 
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = '__all__'
+
+
+class BasicCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = '__all__'
+
+class CompanyServiceRelationshipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CompanyServiceRelationship
+        fields = '__all__'
+
+
 class CompanySerializer(serializers.ModelSerializer):
-    company_service = serializers.PrimaryKeyRelatedField(queryset=Service.objects.all(), many=True)
+    company_service = ServiceSerializer(many=True, read_only=True)
 
     class Meta:
         model = Company
@@ -29,10 +47,6 @@ class CompanyServiceRelationshipSerializer(serializers.ModelSerializer):
         model = CompanyServiceRelationship
         fields = '__all__'
 
-class ServiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Service
-        fields = '__all__'
 
 class LocalitySerializer(serializers.ModelSerializer):
     class Meta:
@@ -47,7 +61,7 @@ class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        fields = ('id', 'name', 'price_monthly', 'company_id', 'service_id', 'created_at', 'updated_at')
+        fields = ('id', 'name', 'price', 'frequency', 'company_id', 'service_id', 'created_at', 'updated_at')
 
     def create(self, validated_data):
         company_id = validated_data.pop('company_id')
@@ -66,34 +80,59 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = '__all__'
 
+class CustomerListSerializer(serializers.ModelSerializer):
+    locality = LocalitySerializer(read_only=True)
+    class Meta:
+        model = Customer
+        fields = '__all__'
+
+
 class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = '__all__'
 
-class CompanyServiceRelationshipSerializer(serializers.ModelSerializer):
-    company_info = CompanySerializer(read_only=True)
+class CompanyServiceRelationshipALLSerializer(serializers.ModelSerializer):
+    company_info = BasicCompanySerializer(read_only=True)
     service_info = ServiceSerializer(read_only=True)
     class Meta:
         model = CompanyServiceRelationship
         fields = '__all__'
 
+class PackageListSerializer(serializers.ModelSerializer):
+    company_service_info = CompanyServiceRelationshipALLSerializer(read_only=True)
+
+    class Meta:
+        model = Package
+        fields = ('id', 'name', 'price', 'frequency', 'company_service_info', 'created_at', 'updated_at')
+
 class PackageALLSerializer(serializers.ModelSerializer):
-    company_service_info = CompanyServiceRelationshipSerializer(read_only=True)
+    company_service_info = CompanyServiceRelationshipALLSerializer(read_only=True)
     class Meta:
         model = Package
         fields = '__all__'
 
+
+
+
 class DeviceCustomSerializer(serializers.ModelSerializer):
     customer = CustomerSerializer(read_only=True)
     package = PackageALLSerializer(read_only=True)
+    locality = LocalitySerializer(read_only=True)
+
     class Meta:
         model = Device
         fields = '__all__'
 
-class RechargeSerializer(serializers.ModelSerializer):
+class RechargeListSerializer(serializers.ModelSerializer):
     device = DeviceCustomSerializer(read_only=True)
+    class Meta:
+        model = Recharge
+        fields = '__all__'
 
+
+
+class RechargeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recharge
         fields = '__all__'

@@ -1,6 +1,9 @@
+import uuid
 from django.db import models
 from django.utils import timezone
-import uuid
+from phonenumber_field.modelfields import PhoneNumberField
+from django.db.models import Count, Sum
+from django.utils.functional import cached_property
 # Create your models here.
 
 class Service(models.Model):
@@ -52,7 +55,6 @@ class Company(models.Model):
     company_service = models.ManyToManyField(Service, through='CompanyServiceRelationship')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
 
     class Meta:
         db_table = 'company'
@@ -60,6 +62,11 @@ class Company(models.Model):
             models.Index(fields=['company_name'])
         ]
 
+    @cached_property
+    def package_count(self):
+        return self.company_service.annotate\
+            (package_count=Count('packages')).\
+            aggregate(total=Sum('package_count'))['total'] or 0
 class CompanyServiceRelationship(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     service_info = models.ForeignKey(Service, on_delete=models.CASCADE)
@@ -84,13 +91,21 @@ class Locality(models.Model):
         indexes = [
             models.Index(fields=['area'])
         ]
-    
+
+    @cached_property
+    def device_count(self):
+        return self.device_set.aggregate(count=Count('id'))['count']
+
+    @cached_property
+    def customer_count(self):
+        return self.customer_set.aggregate(count=Count('id'))['count']
 
 class Customer(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     customer_name = models.CharField(max_length=255,null=True)
     text_address = models.JSONField()
+    phone_number = PhoneNumberField(blank=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     locality = models.ForeignKey(Locality, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -108,7 +123,8 @@ class Package(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255,null=True)
-    price_monthly = models.IntegerField()
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    frequency = models.SmallIntegerField()
     company_service_info = models.ForeignKey(CompanyServiceRelationship, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -135,10 +151,11 @@ class Device(models.Model):
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
     locality = models.ForeignKey(Locality, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    add_on_price = models.IntegerField(default=0)
-    status= models.PositiveSmallIntegerField(choices=STATUS)
-    recharge_date = models.DateField()
-    balance = models.IntegerField()
+    add_on_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    add_on_desc = models.CharField(max_length=255, null=True)
+    status = models.PositiveSmallIntegerField(choices=STATUS)
+    expiry_date = models.DateField()
+    balance = models.DecimalField(max_digits=8, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -148,23 +165,26 @@ class Device(models.Model):
 
 class Recharge(models.Model):
     
-    YES = 1
-    NO = 0
-
-    STATUS = (
-        (YES, 'Yes'),
-        (NO, 'No')
-    )
-    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    payment_collected = models.PositiveSmallIntegerField(choices=STATUS)
-    payment_amount = models.IntegerField(blank=True, null=True)
-    payment_date = models.DateField()
     recharge_entry = models.DateField(default=timezone.now)
-    payment_mode = models.ForeignKey(PaymentMode, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=8, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'recharge'
+
+
+class Payment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    payment_amount = models.IntegerField(blank=True, null=True)
+    payment_date = models.DateField()
+    payment_mode = models.ForeignKey(PaymentMode, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=8, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'payment'

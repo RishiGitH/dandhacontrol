@@ -1,15 +1,21 @@
 from dandhacontrol.models import Company
 from dandhacontrol.serializers import CompanySerializer
-
+from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 
 
 
-class CompanyListCreateView(generics.ListCreateAPIView):
+class CompanyList(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
-    # permission_classes = (IsAuthenticatedOrReadOnly, )
 
+    # permission_classes = [IsAdminCompany]
+
+class CreateCompanyAPIView(generics.CreateAPIView):
+    """This endpoint allows for creation of a Company"""
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
 
 class CompanyRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
