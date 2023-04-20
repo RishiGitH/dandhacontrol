@@ -134,7 +134,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'defaultdb',
         'USER': 'doadmin',
-        'PASSWORD': 'AVNSvuPg',
+        'PASSWORD': os.environ.get("DB_PASS","wrong"),
         'HOST': 'dhandacontrol-prod-do-user-7832252-0.b.db.ondigitalocean.com',
         'PORT': '25060',
         'OPTIONS': {'sslmode': 'require'},
