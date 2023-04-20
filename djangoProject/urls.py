@@ -85,6 +85,10 @@ urlpatterns = [
     path('recharge/create', RechargeCreateView.as_view()),
     path('recharge/<uuid:pk>/', RechargeRetrieveUpdateDestroyAPIView.as_view()),
 
+    path('payment/list', RechargeList.as_view()),
+    path('payment/create', RechargeCreateView.as_view()),
+    path('payment/<uuid:pk>/', RechargeRetrieveUpdateDestroyAPIView.as_view()),
+
     path('client', ClientListCreateView.as_view()),
     path('client/<uuid:pk>/',ClientRetrieveUpdateDestroyAPIView.as_view()),
 

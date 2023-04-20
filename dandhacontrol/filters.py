@@ -20,7 +20,14 @@ class DeviceFilter(django_filters.FilterSet):
         fields = ['expiry_date', 'customer_id', 'locality_id', 'package_id']
 
 class RechargeFilter(django_filters.FilterSet):
-    locality_id = django_filters.UUIDFilter(field_name="locality__id")
+    locality_id = django_filters.UUIDFilter(field_name="device__locality__id")
+
+    class Meta:
+        model = Recharge
+        fields = ['locality_id']
+
+class PaymentFilter(django_filters.FilterSet):
+    locality_id = django_filters.UUIDFilter(field_name="device__locality__id")
 
     class Meta:
         model = Recharge

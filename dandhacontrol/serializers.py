@@ -146,6 +146,20 @@ class RechargeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PaymentListSerializer(serializers.ModelSerializer):
+    device = DeviceCustomSerializer(read_only=True)
+    class Meta:
+        model = Recharge
+        fields = '__all__'
+
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recharge
+        fields = '__all__'
+
+
 
 class PaymentModeSerializer(serializers.ModelSerializer):
     class Meta:
