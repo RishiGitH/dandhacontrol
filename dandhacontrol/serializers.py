@@ -34,19 +34,19 @@ class CompanySerializer(serializers.ModelSerializer):
         field_names.extend(['package_count'])
         return field_names
 
-    def create(self, validated_data):
-        service_ids = validated_data.pop('company_service')
-        company_instance = Company.objects.create(**validated_data)
-
-        for service_id in service_ids:
-            Service.objects.get
-            relationship_instance = CompanyServiceRelationship(
-                service_info=service_id,
-                company_info=company_instance,
-            )
-            relationship_instance.save()
-
-        return company_instance
+    # def create(self, validated_data):
+    #     service_ids = validated_data.pop('company_service')
+    #     company_instance = Company.objects.create(**validated_data)
+    #
+    #     for service_id in service_ids:
+    #         Service.objects.get
+    #         relationship_instance = CompanyServiceRelationship(
+    #             service_info=service_id,
+    #             company_info=company_instance,
+    #         )
+    #         relationship_instance.save()
+    #
+    #     return company_instance
 
 
 class CompanyServiceRelationshipListSerializer(serializers.ModelSerializer):
