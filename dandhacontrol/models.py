@@ -2,7 +2,7 @@ import uuid
 from django.db import models
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Max
 from django.utils.functional import cached_property
 # Create your models here.
 
@@ -112,6 +112,11 @@ class Customer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+    @cached_property
+    def next_recharge_date(self):
+        most_recent_expiry = self.device_set.aggregate(most_recent=Max('expiry_date'))['most_recent']
+        return most_recent_expiry
+
     class Meta:
         db_table = 'customer'
         indexes = [
@@ -158,7 +163,7 @@ class Device(models.Model):
     balance = models.DecimalField(max_digits=8, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
 
     class Meta:
         db_table = 'device'
@@ -179,7 +184,7 @@ class Recharge(models.Model):
 class Payment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    payment_amount = models.IntegerField(blank=True, null=True)
+    payment_amount = models.IntegerField()
     payment_date = models.DateField()
     payment_mode = models.ForeignKey(PaymentMode, on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=8, decimal_places=2)

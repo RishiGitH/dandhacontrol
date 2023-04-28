@@ -26,6 +26,8 @@ from dandhacontrol.appviews.customer_views import CustomerList, CustomerCreateVi
 from dandhacontrol.appviews.client_views import ClientListCreateView, ClientRetrieveUpdateDestroyAPIView
 from dandhacontrol.appviews.company_service_views import  CompanyServiceRelationshipList, \
     CreateCompanyServiceRelationshipAPIView, CompanyServiceRelationshipRetrieveUpdateDestroyAPIView
+from dandhacontrol.appviews.payment_views import PaymentList, PaymentCreateView, PaymentRetrieveUpdateDestroyAPIView
+from dandhacontrol.appviews.analytics_views import AnalyticsView
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -54,43 +56,45 @@ urlpatterns = [
 
     path('company/list', CompanyList.as_view()),
     path('company/create', CreateCompanyAPIView.as_view()),
-    path('company/<uuid:pk>/', CompanyRetrieveUpdateDestroyAPIView.as_view()),
+    path('company/<uuid:pk>', CompanyRetrieveUpdateDestroyAPIView.as_view()),
 
     path('service', ServiceListCreateView.as_view()),
-    path('service/<uuid:pk>/', ServiceRetrieveUpdateDestroyAPIView.as_view()),
+    path('service/<uuid:pk>', ServiceRetrieveUpdateDestroyAPIView.as_view()),
 
     path('customer/list', CustomerList.as_view()),
     path('customer/create', CustomerCreateView.as_view()),
-    path('customer/<uuid:pk>/', CustomerRetrieveUpdateDestroyAPIView.as_view()),
+    path('customer/<uuid:pk>', CustomerRetrieveUpdateDestroyAPIView.as_view()),
 
     path('device/list', DeviceList.as_view()),
     path('device/create', DeviceCreateView.as_view()),
-    path('device/<uuid:pk>/', DeviceRetrieveUpdateDestroyAPIView.as_view()),
+    path('device/<uuid:pk>', DeviceRetrieveUpdateDestroyAPIView.as_view()),
 
     path('locality', LocalityListCreateView.as_view()),
-    path('locality/<uuid:pk>/', LocalityRetrieveUpdateDestroyAPIView.as_view()),
+    path('locality/<uuid:pk>', LocalityRetrieveUpdateDestroyAPIView.as_view()),
 
     path('package/list', PackageList.as_view()),
     path('package/create', CreatePackageAPIView.as_view()),
-    path('package/<uuid:pk>/', PackageRetrieveUpdateDestroyAPIView.as_view()),
+    path('package/<uuid:pk>', PackageRetrieveUpdateDestroyAPIView.as_view()),
 
     path('company_service_relationship/list', CompanyServiceRelationshipList.as_view()),
     path('company_service_relationship/create', CreateCompanyServiceRelationshipAPIView.as_view()),
     path('company_service_relationship/<uuid:pk>/', CompanyServiceRelationshipRetrieveUpdateDestroyAPIView.as_view()),
 
     path('payment_mode', PaymentModeListCreateView.as_view()),
-    path('payment_mode/<uuid:pk>/', PaymentModeRetrieveUpdateDestroyAPIView.as_view()),
+    path('payment_mode/<uuid:pk>', PaymentModeRetrieveUpdateDestroyAPIView.as_view()),
 
     path('recharge/list', RechargeList.as_view()),
     path('recharge/create', RechargeCreateView.as_view()),
-    path('recharge/<uuid:pk>/', RechargeRetrieveUpdateDestroyAPIView.as_view()),
+    path('recharge/<uuid:pk>', RechargeRetrieveUpdateDestroyAPIView.as_view()),
 
-    path('payment/list', RechargeList.as_view()),
-    path('payment/create', RechargeCreateView.as_view()),
-    path('payment/<uuid:pk>/', RechargeRetrieveUpdateDestroyAPIView.as_view()),
+    path('payment/list', PaymentList.as_view()),
+    path('payment/create', PaymentCreateView.as_view()),
+    path('payment/<uuid:pk>', PaymentRetrieveUpdateDestroyAPIView.as_view()),
 
     path('client', ClientListCreateView.as_view()),
-    path('client/<uuid:pk>/',ClientRetrieveUpdateDestroyAPIView.as_view()),
+    path('client/<uuid:pk>',ClientRetrieveUpdateDestroyAPIView.as_view()),
+
+    path('analytics/', AnalyticsView.as_view(), name='analytics'),
 
     path('__debug__/', include('debug_toolbar.urls')),
 ]

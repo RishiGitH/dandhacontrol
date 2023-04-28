@@ -1,7 +1,11 @@
 from rest_framework import serializers
 from .models import Company, CompanyServiceRelationship,\
     Service,Locality,Customer,\
-    Package,Device,Recharge,PaymentMode,Client
+    Package,Device,Recharge,PaymentMode,Client, Payment
+from .filters import date_range_filter,yesterday_filter\
+    ,today_filter,last_7_days_filter,\
+    last_30_days_filter,last_90_days_filter
+from django.db.models import Count, Sum
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -98,11 +102,34 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = '__all__'
 
+
+class DeviceCustomerSerializer(serializers.ModelSerializer):
+    company_service_info = CompanyServiceRelationshipSerializer(many=True, read_only=True)
+    service = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Device
+        fields = ('id', 'device_number', 'package', 'locality', 'customer',
+                  'add_on_price', 'add_on_desc', 'status', 'expiry_date',
+                  'balance', 'created_at', 'updated_at', 'service', 'company_service_info')
+
+    def get_service(self, obj):
+        return ServiceSerializer(obj.package.company_service_info.service_info).data
+
 class CustomerListSerializer(serializers.ModelSerializer):
     locality = LocalitySerializer(read_only=True)
+    next_recharge_date = serializers.ReadOnlyField()
+    devices = DeviceCustomerSerializer(many=True, read_only=True, source='device_set')
+
     class Meta:
         model = Customer
         fields = '__all__'
+
+    def get_field_names(self, declared_fields, info):
+        field_names = super().get_field_names(declared_fields, info)
+        field_names.extend(['next_recharge_date'])
+        field_names.extend(['devices'])
+        return field_names
 
 
 class DeviceSerializer(serializers.ModelSerializer):
@@ -166,7 +193,7 @@ class PaymentListSerializer(serializers.ModelSerializer):
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Recharge
+        model = Payment
         fields = '__all__'
 
 
@@ -180,3 +207,54 @@ class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = '__all__'
+
+
+class AnalyticsSerializer(serializers.Serializer):
+    total_revenue = serializers.DecimalField(max_digits=10, decimal_places=2)
+    num_payments = serializers.IntegerField()
+    num_active_customers = serializers.IntegerField()
+    num_inactive_customers = serializers.IntegerField()
+    num_active_devices = serializers.IntegerField()
+    num_inactive_devices = serializers.IntegerField()
+
+# class AnalyticsSerializer(serializers.Serializer):
+#     total_revenue_today = serializers.DecimalField(max_digits=8, decimal_places=2)
+#     total_revenue_yesterday = serializers.DecimalField(max_digits=8, decimal_places=2)
+#     total_revenue_last_7_days = serializers.DecimalField(max_digits=8, decimal_places=2)
+#     total_revenue_last_30_days = serializers.DecimalField(max_digits=8, decimal_places=2)
+#     total_revenue_last_90_days = serializers.DecimalField(max_digits=8, decimal_places=2)
+#
+#     payments_received_today = serializers.IntegerField()
+#     payments_received_yesterday = serializers.IntegerField()
+#     payments_received_last_7_days = serializers.IntegerField()
+#     payments_received_last_30_days = serializers.IntegerField()
+#     payments_received_last_90_days = serializers.IntegerField()
+#
+#     active_customers = serializers.IntegerField()
+#     inactive_customers = serializers.IntegerField()
+#
+#     active_devices = serializers.IntegerField()
+#     inactive_devices = serializers.IntegerField()
+#
+#     def to_representation(self, instance):
+#         data = {
+#             'total_revenue_today': Payment.objects.filter(today_filter('payment_date')).aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0,
+#             'total_revenue_yesterday': Payment.objects.filter(yesterday_filter('payment_date')).aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0,
+#             'total_revenue_last_7_days': Payment.objects.filter(last_7_days_filter('payment_date')).aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0,
+#             'total_revenue_last_30_days': Payment.objects.filter(last_30_days_filter('payment_date')).aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0,
+#             'total_revenue_last_90_days': Payment.objects.filter(last_90_days_filter('payment_date')).aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0,
+#
+#             'payments_received_today': Payment.objects.filter(today_filter('payment_date')).count(),
+#             'payments_received_yesterday': Payment.objects.filter(yesterday_filter('payment_date')).count(),
+#             'payments_received_last_7_days': Payment.objects.filter(last_7_days_filter('payment_date')).count(),
+#             'payments_received_last_30_days': Payment.objects.filter(last_30_days_filter('payment_date')).count(),
+#             'payments_received_last_90_days': Payment.objects.filter(last_90_days_filter('payment_date')).count(),
+#
+#             'active_customers': Customer.objects.filter(device__status=Device.ACTIVE).distinct().count(),
+#             'inactive_customers': Customer.objects.filter(device__status=Device.NOT_ACTIVE).distinct().count(),
+#
+#             'active_devices': Device.objects.filter(status=Device.ACTIVE).count(),
+#             'inactive_devices': Device.objects.filter(status=Device.NOT_ACTIVE).count(),
+#         }
+#         return data
+
